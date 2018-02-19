@@ -251,11 +251,18 @@ void CDepthOfFieldStage::Execute()
 				m_passComposition.SetTextureSamplerPair(2, CTexture::s_ptexHDRDofLayers[1], EDefaultSamplerStates::LinearClamp);
 				m_passComposition.SetTextureSamplerPair(3, CTexture::s_ptexSceneCoCTemp, EDefaultSamplerStates::LinearClamp);
 				m_passComposition.SetTextureSamplerPair(4, CTexture::s_ptexSceneTarget, EDefaultSamplerStates::PointClamp);
+                m_passComposition.SetTextureSamplerPair(5, dofParams.pMaskTex, EDefaultSamplerStates::LinearClamp);
 			}
 
 			m_passComposition.BeginConstantUpdate();
+
 			m_passComposition.SetConstant(dofFocusParam0Name, vDofParams0, eHWSC_Pixel);
 			m_passComposition.SetConstant(dofFocusParam1Name, vDofParams1, eHWSC_Pixel);
+
+            static CCryNameR dofScreenSize("vDofScreenSize");
+            Vec4 screenSize((gEnv->pRenderer->GetWidth() / (float)gEnv->pRenderer->GetHeight()) / (1920.f/1080.0f), 0, 0, 0);
+            m_passComposition.SetConstant(dofScreenSize, screenSize, eHWSC_Pixel);
+
 			m_passComposition.Execute();
 		}
 	}
