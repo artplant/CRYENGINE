@@ -23,6 +23,7 @@ float4 vRadBlurParam;
 
 float4 vDofParamsFocus0;
 float4 vDofParamsFocus1;
+float4 vDofScreenSize;
 float4 vAspectRatio;
 half4 vRainColor;
 
@@ -642,7 +643,10 @@ pixout CompositeDofPS(vtxOut IN)
 	half4 cScene = tex2D(_tex4, IN.baseTC.xy);
 	half4 cLayerNear = tex2D_bicubic(_tex1, IN.baseTC.xy, PS_ScreenSize.xy *0.5);
 	half4 cLayerFar = tex2D_bicubic(_tex2, IN.baseTC.xy, PS_ScreenSize.xy *0.5);
-	
+
+	half2 maskTC = (IN.baseTC.xy - 0.5) * vDofScreenSize.x + 0.5; 
+	half4 cMask = tex2D(_tex5, maskTC.xy);
+
 	float depth = tex2D(_tex0, IN.baseTC.xy).x * PS_NearFarClipDist.y; 
 	
 	float4 nearCoC, farCoC;
@@ -656,6 +660,8 @@ pixout CompositeDofPS(vtxOut IN)
 	
 	OUT.Color = lerp(cScene, cLayerFar, cLayerFar.a);
 	OUT.Color = lerp(OUT.Color, cLayerNear, cLayerNear.a);
+	OUT.Color = lerp(OUT.Color, cScene, cMask.r);
+	//OUT.Color = cMask;
 	
 	return OUT;
 }
